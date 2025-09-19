@@ -1,12 +1,11 @@
 ﻿@using System.Linq
-@model List<FoodOrderWeb.Models.Category>
-
+@model FoodOrderWeb.Models.ViewModel.HomeViewModel
 
 @{
     ViewData["Title"] = "Home Page";
 }
 
-<style>
+<style> 
     /* Left column */
     .left-column {
         padding: 25px 30px;
@@ -96,6 +95,12 @@
 
     /* right */
     /* Voucher card */
+    .wrapper {
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 10px;
+        margin: 0 0 20px 0;
+    }
+
     .voucher-card {
         background: #fff;
         border: 1px solid #e2e8f0;
@@ -152,98 +157,151 @@
                 <ul id="suggestions" class="list-group position-absolute mt-1 w-100"></ul>
             </div>
 
-            <!-- Categories -->
-            <div>
-                <h4 class="mb-4 fw-bold text-dark">Danh mục món ăn</h4>
-                <div class="row g-4">
-                    @foreach (var cat in Model.Take(12))
+            <!-- Featured products -->
+            <div class="mb-4 text-center">
+                <h3 class="fw-bold text-success">🌟 Sản phẩm nổi bật 🌟</h3>
+            </div>
+
+            <div id="featuredCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @for (int i = 0; i < Model.MenuItems.Count; i++)
                     {
-                        <div class="col-6 col-md-4">
-                            <a asp-controller="Home" asp-action="Search" asp-route-query="@cat.Name" class="category-box">
-                                <div class="category-name">@cat.Name</div>
-                            </a>
+                        var product = Model.MenuItems[i];
+                        <div class="carousel-item @(i == 0 ? "active" : "")">
+                            <div class="row g-4 align-items-center">
+                                <!-- Ảnh bên trái -->
+                                <div class="col-md-6">
+                                    <img src="@product.ImageUrl"
+                                         class="d-block w-100 rounded shadow-sm"
+                                         style="height:320px; object-fit:cover;"
+                                         alt="@product.Name" />
+                                </div>
+
+                                <!-- Thông tin bên phải -->
+                                <div class="col-md-6 d-flex flex-column justify-content-center px-4">
+                                    <h3 class="fw-bold text-dark mb-3" style="font-size: 1.6rem;">
+                                        @product.Name
+                                    </h3>
+                                    <p class="text-secondary mb-3" style="font-size: 1rem; line-height: 1.6;">
+                                        @product.Description
+                                    </p>
+                                    <p class="text-success fw-bold mb-4" style="font-size: 1.2rem;">
+                                        @product.Price.ToString("C")
+                                    </p>
+                                    <a asp-controller="Home" asp-action="FoodDetails" asp-route-id="@product.MenuItemId"
+                                       class="btn btn-lg btn-success shadow-sm rounded-pill px-4 py-2"
+                                       style="font-weight: 600;">
+                                        <i class="fa-solid fa-cart-shopping me-2"></i> Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     }
                 </div>
+
+                <!-- Controls -->
+                <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon bg-dark rounded-circle p-2"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon bg-dark rounded-circle p-2"></span>
+                </button>
             </div>
+
+
         </div>
 
 
 
         <!-- Right -->
         <div class="col-md-6 right-column">
-            <div class="p-3 border rounded bg-white shadow-sm">
+            <div class="wrapper p-3 border shadow-sm">
 
                 <!-- Tabs -->
                 <ul class="nav nav-tabs mb-4 custom-tabs" id="voucherTabs" role="tablist">
                     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#combo">Combo</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#drinks">Drinks</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#hotpot">Hotpot</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#sushi">Sushi</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#starter">Starter</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#main">Main</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dessert">Dessert</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#drink">Drink</a></li>
                 </ul>
 
                 <!-- Voucher content -->
-                <div class="tab-content voucher-list">
-                    <!-- Combo -->
-                    <div class="tab-pane fade show active" id="combo">
+                <!-- Combo -->
+                <div class="tab-pane fade show active" id="combo">
+                    @foreach (var v in Model.ComboVouchers)
+                    {
                         <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/combo1.jpg" class="voucher-img" alt="Combo 1" />
+                            <img src="@(v.MenuItems.FirstOrDefault()?.ImageUrl ?? "/images/default.jpg")"
+                                 class="voucher-img" alt="@v.Code" />
                             <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Combo Cơm Gà</h5>
-                                <p class="voucher-desc">Tiết kiệm 20% khi đặt kèm nước</p>
+                                <h5 class="voucher-title">@v.Code</h5>
+                                <p class="voucher-desc">@v.Description</p>
+                                <small class="text-success">
+                                    Giảm @(v.DiscountPercent?.ToString("0") ?? "0")%
+                                </small>
                             </div>
                         </div>
-
-                        <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/combo2.jpg" class="voucher-img" alt="Combo 2" />
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Combo Lẩu Hải Sản</h5>
-                                <p class="voucher-desc">Tặng kèm Pepsi 1.5L</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Drinks -->
-                    <div class="tab-pane fade" id="drinks">
-                        <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/drink1.jpg" class="voucher-img" alt="Drink" />
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Trà Sữa Trân Châu</h5>
-                                <p class="voucher-desc">Mua 1 tặng 1</p>
-                            </div>
-                        </div>
-
-                        <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/drink2.jpg" class="voucher-img" alt="Drink" />
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Cafe Sữa Đá</h5>
-                                <p class="voucher-desc">Giảm 10% cho buổi sáng</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hotpot -->
-                    <div class="tab-pane fade" id="hotpot">
-                        <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/hotpot.jpg" class="voucher-img" alt="Hotpot" />
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Lẩu Thái Hải Sản</h5>
-                                <p class="voucher-desc">Giảm 15% cuối tuần</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sushi -->
-                    <div class="tab-pane fade" id="sushi">
-                        <div class="voucher-card d-flex align-items-center mb-3">
-                            <img src="/images/sushi.jpg" class="voucher-img" alt="Sushi" />
-                            <div class="flex-grow-1 ms-3">
-                                <h5 class="voucher-title">Sushi Thập Cẩm</h5>
-                                <p class="voucher-desc">Combo 10 miếng chỉ 99k</p>
-                            </div>
-                        </div>
-                    </div>
+                    }
                 </div>
+
+                <!-- Starter -->
+                <div class="tab-pane fade" id="starter">
+                    @foreach (var v in Model.StarterVouchers)
+                    {
+                        <div class="voucher-card d-flex align-items-center mb-3">
+                            <img src="@(v.MenuItems.FirstOrDefault()?.ImageUrl ?? "/images/default.jpg")"
+                                 class="voucher-img" alt="@v.Code" />
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="voucher-title">@v.Code</h5>
+                                <p class="voucher-desc">@v.Description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- Main -->
+                <div class="tab-pane fade" id="main">
+                    @foreach (var v in Model.MainVouchers)
+                    {
+                        <div class="voucher-card d-flex align-items-center mb-3">
+                            <img src="@(v.MenuItems.FirstOrDefault()?.ImageUrl ?? "/images/default.jpg")"
+                                 class="voucher-img" alt="@v.Code" />
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="voucher-title">@v.Code</h5>
+                                <p class="voucher-desc">@v.Description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- Dessert -->
+                <div class="tab-pane fade" id="dessert">
+                    @foreach (var v in Model.DessertVouchers)
+                    {
+                        <div class="voucher-card d-flex align-items-center mb-3">
+                            <img src="@(v.MenuItems.FirstOrDefault()?.ImageUrl ?? "/images/default.jpg")"
+                                 class="voucher-img" alt="@v.Code" />
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="voucher-title">@v.Code</h5>
+                                <p class="voucher-desc">@v.Description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <!-- Drinks -->
+                <div class="tab-pane fade" id="drink">
+                    @foreach (var v in Model.DrinkVouchers)
+                    {
+                        <div class="voucher-card d-flex align-items-center mb-3">
+                            <img src="@(v.MenuItems.FirstOrDefault()?.ImageUrl ?? "/images/default.jpg")"
+                                 class="voucher-img" alt="@v.Code" />
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="voucher-title">@v.Code</h5>
+                                <p class="voucher-desc">@v.Description</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+
             </div>
         </div>
     
