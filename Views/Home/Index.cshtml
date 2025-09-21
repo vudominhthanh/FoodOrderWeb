@@ -9,8 +9,8 @@
     /* Left column */
     .left-column {
         padding: 25px 30px;
-        background: rgba(255, 255, 255, 0.6); /* nền trắng trong suốt 60% */
-        backdrop-filter: blur(6px); /* làm mờ background phía sau */
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(6px);
         border-right: 1px solid rgba(255,255,255,0.2);
         border-radius: 12px;
         min-height: calc(100vh-80px);
@@ -20,7 +20,9 @@
     .tagline {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #0f172a;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         line-height: 1.4;
     }
 
@@ -48,7 +50,7 @@
         }
 
         .search-bar button {
-            background: #0d9488;
+            background: linear-gradient(90deg, #a3e635, #4ade80);
             color: #fff;
             border: none;
             padding: 0 20px;
@@ -56,7 +58,7 @@
         }
 
             .search-bar button:hover {
-                background: #0f766e;
+                background: linear-gradient(270deg, #16a34a, #65a30d);
             }
 
     /* Category box */
@@ -70,7 +72,7 @@
         border: 1px solid #e2e8f0;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         padding: 20px 15px;
-        min-height: 75px; /* chỉnh lại min height */
+        min-height: 75px;
         transition: all 0.25s ease;
         position: relative;
         overflow: hidden;
@@ -82,28 +84,74 @@
             border-color: #0d9488;
             box-shadow: 0 8px 16px rgba(0,0,0,0.12);
         }
-
+    .ctcate {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .btncate {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: whitesmoke;
+    }
+        .btncate:hover {
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+            color: black;
+        }
     /* Chữ trong category */
     .category-name {
-        font-size: 18px; /* chữ to hơn */
+        font-size: 18px;
         font-weight: 700;
-        color: #0f172a;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         text-align: center;
         transition: transform 0.2s ease, color 0.3s ease;
     }
 
 
     /* right */
-    /* Voucher card */
+
     .wrapper {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 10px;
         margin: 0 0 20px 0;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(6px);
+        border-left: 1px solid rgba(255,255,255,0.2);
     }
 
+    /*nav*/
+
+    .custom-tabs .nav-link {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: black;
+        border: none;
+        margin-right: 5px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        min-width: 110px;
+        text-align: center;
+    }
+
+        .custom-tabs .nav-link:hover{
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+            color: white !important;
+            font-weight: bold;
+            border-bottom: none;
+        }
+        .custom-tabs .nav-link.active {     
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+            color: white !important;
+            font-weight: bold;
+            border-bottom: 4px solid transparent;
+            border-image: linear-gradient(270deg, #16a34a, #65a30d) 1;
+        }
+
+    /* Voucher card */
+
     .voucher-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        border: 1px solid ;
         border-radius: 14px;
         padding: 12px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -112,7 +160,7 @@
 
         .voucher-card:hover {
             transform: translateY(-5px);
-            background: #f0fdfa;
+            background: linear-gradient(90deg, #a3e635, #4ade80);;
             border-color: #0d9488;
             box-shadow: 0 8px 16px rgba(0,0,0,0.12);
         }
@@ -159,7 +207,7 @@
 
             <!-- Featured products -->
             <div class="mb-4 text-center">
-                <h3 class="fw-bold text-success">🌟 Sản phẩm nổi bật 🌟</h3>
+                <h3 class="fw-bold ctcate">🌟 Sản phẩm nổi bật 🌟</h3>
             </div>
 
             <div id="featuredCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
@@ -179,17 +227,17 @@
 
                                 <!-- Thông tin bên phải -->
                                 <div class="col-md-6 d-flex flex-column justify-content-center px-4">
-                                    <h3 class="fw-bold text-dark mb-3" style="font-size: 1.6rem;">
+                                    <h3 class="fw-bold text-light mb-3" style="font-size: 1.6rem;">
                                         @product.Name
                                     </h3>
-                                    <p class="text-secondary mb-3" style="font-size: 1rem; line-height: 1.6;">
+                                    <p class="text-light mb-3" style="font-size: 1rem; line-height: 1.6;">
                                         @product.Description
                                     </p>
                                     <p class="text-success fw-bold mb-4" style="font-size: 1.2rem;">
                                         @product.Price.ToString("C")
                                     </p>
                                     <a asp-controller="Home" asp-action="FoodDetails" asp-route-id="@product.MenuItemId"
-                                       class="btn btn-lg btn-success shadow-sm rounded-pill px-4 py-2"
+                                       class="btn btn-lg btncate shadow-sm rounded-pill px-4 py-2"
                                        style="font-weight: 600;">
                                         <i class="fa-solid fa-cart-shopping me-2"></i> Xem chi tiết
                                     </a>
@@ -215,15 +263,15 @@
 
         <!-- Right -->
         <div class="col-md-6 right-column">
-            <div class="wrapper p-3 border shadow-sm">
+            <div class="wrapper p-3 shadow-sm">
 
                 <!-- Tabs -->
                 <ul class="nav nav-tabs mb-4 custom-tabs" id="voucherTabs" role="tablist">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#combo">Combo</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#starter">Starter</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#main">Main</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#dessert">Dessert</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#drink">Drink</a></li>
+                    <li class="nav-item flex-fill"><a class="nav-link active" data-bs-toggle="tab" href="#combo">Combo</a></li>
+                    <li class="nav-item flex-fill"><a class="nav-link" data-bs-toggle="tab" href="#starter">Starter</a></li>
+                    <li class="nav-item flex-fill"><a class="nav-link" data-bs-toggle="tab" href="#main">Main</a></li>
+                    <li class="nav-item flex-fill"><a class="nav-link" data-bs-toggle="tab" href="#dessert">Dessert</a></li>
+                    <li class="nav-item flex-fill"><a class="nav-link" data-bs-toggle="tab" href="#drink">Drink</a></li>
                 </ul>
 
                 <!-- Voucher content -->
@@ -389,19 +437,7 @@
             });
         });
 
-    // right
-            // Hiệu ứng hover cho voucher card
-        document.querySelectorAll(".voucher-card").forEach(card => {
-            const title = card.querySelector(".voucher-title");
-            card.addEventListener("mouseenter", () => {
-                title.style.color = "#0d9488";
-                title.style.transform = "scale(1.05)";
-            });
-            card.addEventListener("mouseleave", () => {
-                title.style.color = "#0f172a";
-                title.style.transform = "scale(1)";
-            });
-        });
+//right
 
         // Hiệu ứng click nhún xuống
         document.querySelectorAll(".voucher-card").forEach(card => {

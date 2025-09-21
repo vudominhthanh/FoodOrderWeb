@@ -7,7 +7,7 @@
     body {
         font-family: 'Segoe UI', sans-serif;
         background-color: #f9fafb;
-        background-image: linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url('/image/homeimage.jpeg');
+        background-image: url('/image/homeimage.jpeg');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -43,7 +43,7 @@
 
     .btn-search {
         border-radius: 50px;
-        background: #00bfa6;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
         border: none;
         color: #fff;
         padding: 0 20px;
@@ -51,7 +51,7 @@
     }
 
         .btn-search:hover {
-            background: #009e89;
+            background: linear-gradient(270deg, #16a34a, #65a30d);
         }
 
     /* Thanh filter */
@@ -109,6 +109,54 @@
         text-decoration: none;
         color: inherit;
     }
+    /* Catagory search */
+    .category-card {
+        min-width: 130px;
+        height: 50px;
+        border-radius: 25px;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 0 20px;
+    }
+
+        .category-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            color: black;
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+        }
+
+	.btnloc {
+		background: linear-gradient(90deg, #a3e635, #4ade80);
+		color: whitesmoke;
+	}
+
+		.btnloc:hover {
+			background: linear-gradient(270deg, #16a34a, #65a30d);
+			color: black;
+		}
+
+    /* Tạo khoảng cách với footer */
+    .category-section {
+        margin-bottom: 60px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* line ngăn cách */
+    }
+
+    .empty-state {
+        font-style: italic;
+        color: #ccc;
+    }
+    
+
 </style>
 
 <div class="container">
@@ -157,15 +205,15 @@
             </div>
 
             <div class="col-md-2 text-end">
-                <button type="submit" class="btn btn-success w-100">Lọc</button>
+                <button type="submit" class="btn btnloc w-100 fw-bold">Lọc</button>
             </div>
         </form>
     </div>
 
-    <h3 class="mb-4">Kết quả cho "<span class="text-success">@Model.Query</span>"</h3>
+    <h3 class="mb-4 text-white">Kết quả cho "<span class="text-success">@Model.Query</span>"</h3>
 
     <!-- Combo -->
-    <h4 class="section-title">Combo ưu đãi</h4>
+    <h4 class="section-title text-white">Combo</h4>
     <div class="row">
         @if (Model.Combos?.Any() == true)
         {
@@ -194,7 +242,7 @@
     </div>
 
     <!-- Menu Items -->
-    <h4 class="section-title">Món ăn</h4>
+    <h4 class="section-title text-white">Món ăn</h4>
     <div class="row">
         @if (Model.MenuItems?.Any() == true)
         {
@@ -224,51 +272,28 @@
     </div>
 
     <!-- Category -->
-    <h4 class="section-title mb-4">Danh mục</h4>
-    <div class="d-flex flex-wrap gap-3">
-        @if (Model.Categories?.Any() == true)
-        {
-            @foreach (var cat in Model.Categories)
+    <div class="category-section">
+        <h4 class="section-title mb-4 text-white">Danh mục</h4>
+        <div class="d-flex flex-wrap gap-3">
+            @if (Model.Categories?.Any() == true)
             {
-                <div class="category-card text-white d-flex align-items-center justify-content-center"
-                     style="background-image: url('/image/default.jpg');"
-                     onclick="location.href='@Url.Action("CategoryDetails", "Category", new { id = cat.CategoryId })'">
-                    <span>@cat.Name</span>
+                @foreach (var cat in Model.Categories)
+                {
+                    <div class="category-card"
+                         onclick="location.href='@Url.Action("CategoryDetails", "Home", new { id = cat.CategoryId })'">
+                        <span>@cat.Name</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state text-center py-5 w-100">
+                    Không có danh mục nào.
                 </div>
             }
-        }
-        else
-        {
-            <div class="empty-state text-center text-muted py-5 w-100">
-                Không có danh mục nào.
-            </div>
-        }
-	@* </div> lỗi danh mục *@
+        </div>
+    </div>
 
-    <style>
-        .category-card {
-            width: 160px;
-            height: 80px;
-            border-radius: 12px;
-            background-size: cover;
-            background-position: center;
-            cursor: pointer;
-            font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-            .category-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            }
-
-            .category-card span {
-                background: rgba(0,0,0,0.5);
-                padding: 4px 10px;
-                border-radius: 8px;
-            }
-    </style>
-
+    <hr class="my-4" />
 
 </div>
