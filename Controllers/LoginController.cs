@@ -55,6 +55,7 @@ namespace FoodOrderWeb.Controllers
                         new ClaimsPrincipal(claimsIdentity), authProperties).Wait();
                     if (user.Role == "Admin")
                     {
+                        //return RedirectToAction("Index", "AdminDashboard");
                         return RedirectToAction("Index", "AdminDashboard");
                     }
                     else

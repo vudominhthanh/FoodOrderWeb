@@ -77,8 +77,8 @@ footer {
             width: 0;
             height: 2px;
             background: lawngreen;
-            transition: width 0.3s ease;
-        }
+                transition: width 0.3s ease;
+            }
 
         .custom-navbar .nav-link:hover::after {
             width: 100%;
@@ -95,6 +95,10 @@ footer {
 
 .btnpanel:hover {
     background: linear-gradient(90deg, #a3e635, #4ade80);
+}
+
+.btnpanelad:hover {
+    background: linear-gradient(45deg, #0d6efd, #0056b3);
 }
 
 @keyframes fadeDown {
@@ -121,6 +125,17 @@ footer {
     }
 
 /* Tabs */
+.category-navbar {
+    display: flex;
+    justify-content: center; /* căn giữa toàn bộ */
+    align-items: center;
+    gap: 30px; /* khoảng cách giữa các mục */
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+
 .nav-tabs .nav-link {
     border: none;
     border-bottom: 2px solid transparent;
@@ -175,4 +190,3 @@ footer {
         color: #0d9488;
         cursor: pointer;
     }
-

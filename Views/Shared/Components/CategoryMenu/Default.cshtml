@@ -1,0 +1,18 @@
+﻿@model IEnumerable<Category>
+
+<ul class="navbar-nav mx-auto category-navbar">
+
+    <li class="nav-item mx-3">
+        <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Index">Home</a>
+    </li>
+
+    @foreach (var item in Model)
+    {
+        <li class="nav-item mx-3">
+            <a class="nav-link text-light fw-semibold" asp-controller="Category" asp-action="CategoryName" asp-route-id="@item.CategoryId">
+                @item.Name
+            </a>
+        </li>
+    }
+</ul>
+

@@ -155,7 +155,17 @@
         font-style: italic;
         color: #ccc;
     }
-    
+    /*chia 5 se 7*/
+    .food-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+        .food-grid .food-item {
+            flex: 1 1 calc(20% - 20px);
+            max-width: calc(20% - 20px);
+        }
 
 </style>
 
@@ -243,12 +253,12 @@
 
     <!-- Menu Items -->
     <h4 class="section-title text-white">Món ăn</h4>
-    <div class="row">
+    <div class="row food-grid">
         @if (Model.MenuItems?.Any() == true)
         {
             @foreach (var item in Model.MenuItems)
             {
-                <div class="col-md-4 mb-4">
+                <div class="food-item mb-4">
                     <a asp-controller="Details" asp-action="FoodDetails" asp-route-id="@item.MenuItemId" class="card-link">
                         <div class="card h-100">
                             <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" />

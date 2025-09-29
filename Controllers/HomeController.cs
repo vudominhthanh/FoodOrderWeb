@@ -27,35 +27,49 @@ namespace FoodOrderWeb.Controllers
             var categories = _context.Categories
                 .Include(c => c.MenuItems)
                 .ToList();
-                
+
             var vouchers = _context.Vouchers
                 .Include(v => v.MenuItems)
                     .ThenInclude(mi => mi.Category)
+                .Include(v => v.MenuItemSizes)              // add include
+                    .ThenInclude(ms => ms.MenuItem)
+                        .ThenInclude(mi => mi.Category)     // ði t?i Category
                 .Include(v => v.Combos)
                 .Where(v => v.IsActive && v.EndDate >= DateTime.Now)
                 .ToList();
 
-                    // phân lo?i theo category name (Starter, Main, Dessert, Drink)
-                    var comboVouchers = vouchers.Where(v => v.Combos.Any()).ToList();
-                    var starterVouchers = vouchers.Where(v => v.MenuItems.Any(mi => mi.Category.Name == "Starter")).ToList();
-                    var mainVouchers = vouchers.Where(v => v.MenuItems.Any(mi => mi.Category.Name == "Main")).ToList();
-                    var dessertVouchers = vouchers.Where(v => v.MenuItems.Any(mi => mi.Category.Name == "Dessert")).ToList();
-                    var drinkVouchers = vouchers.Where(v => v.MenuItems.Any(mi => mi.Category.Name == "Drink")).ToList();
+            // Helper: hàm l?c theo category name
+            Func<string, List<Voucher>> filterByCategory = (categoryName) =>
+            {
+                var cat = categoryName.Trim().ToLower();
+                return vouchers
+                    .Where(v =>
+                        v.MenuItems.Any(mi => mi.Category != null && mi.Category.Name.Trim().ToLower() == cat) ||
+                        v.MenuItemSizes.Any(ms => ms.MenuItem.Category != null && ms.MenuItem.Category.Name.Trim().ToLower() == cat)
+                    ).ToList();
+            };
+
+            var comboVouchers = vouchers.Where(v => v.Combos.Any()).ToList();
+            var starterVouchers = filterByCategory("starter");
+            var mainVouchers = filterByCategory("main");
+            var dessertVouchers = filterByCategory("dessert");
+            var drinkVouchers = filterByCategory("drink");
 
             var viewModel = new HomeViewModel
             {
                 Categories = categories,
                 MenuItems = featuredProducts,
                 Vouchers = vouchers,
-
                 ComboVouchers = comboVouchers,
                 StarterVouchers = starterVouchers,
                 MainVouchers = mainVouchers,
                 DessertVouchers = dessertVouchers,
                 DrinkVouchers = drinkVouchers
             };
+
             return View(viewModel);
         }
+
 
 
         public IActionResult Search(string query, string? category, string? sortBy, decimal? minPrice, decimal? maxPrice)
@@ -154,27 +168,6 @@ namespace FoodOrderWeb.Controllers
             viewModel.Combos = combosQuery.ToList();
 
             return View(viewModel);
-        }
-
-
-        public IActionResult Starter()
-        {
-            return View();
-        }
-
-        public IActionResult Main()
-        {
-            return View();
-        }
-
-        public IActionResult Dessert()
-        {
-            return View();
-        }
-
-        public IActionResult Drink()
-        {
-            return View();
         }
 
         public IActionResult Privacy()

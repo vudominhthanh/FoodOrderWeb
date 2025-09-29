@@ -25,23 +25,8 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mx-auto">
-                        <li class="nav-item mx-3">
-                            <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item mx-3">
-                            <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Starter">Starter</a>
-                        </li>
-                        <li class="nav-item mx-3">
-                            <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Main">Main</a>
-                        </li>
-                        <li class="nav-item mx-3">
-                            <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Dessert">Dessert</a>
-                        </li>
-                        <li class="nav-item mx-3">
-                            <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Drink">Drink</a>
-                        </li>
-                    </ul>
+
+                    @await Component.InvokeAsync("CategoryMenu")
 
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity?.IsAuthenticated == true)
@@ -55,7 +40,15 @@
 
                                 <div id="userPanel" class="position-absolute end-0 mt-2 p-3 bg-white border rounded-3 shadow-lg user-panel">
                                     <h6 class="mb-3 text-center fw-bold text-success">User Panel</h6>
-
+                                    
+                                    @if(User.IsInRole("Admin"))
+                                    {
+                                        <div class="mb-2">
+                                            <a class="btn btn-outline-primary btnpanelad w-100 rounded-pill" asp-controller="AdminDashboardController" asp-action="Index">
+                                                Admin Dashboard
+                                            </a>
+                                        </div>
+									}
                                     <div class="mb-2">
                                         <a class="btn btn-outline-success btnpanel w-100 rounded-pill" asp-controller="Login" asp-action="Profile">
                                             View Profile
