@@ -158,6 +158,10 @@
             color: inherit !important;
         }
 
+    .comboback {
+        background: url('/image/backcombo.webp') no-repeat fixed center;
+        background-size: cover;
+    }
 </style>
 
 <div class="container">
@@ -185,7 +189,7 @@
             @foreach (var voucher in Model.Vouchers)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card h-100">
+                    <div class="comboback card h-100">
                         <div class="card-body">
                             <h5>@voucher.Code</h5>
                             <p>@voucher.Description</p>
@@ -213,7 +217,7 @@
             {
                 <div class="food-item mb-4">
                     <a asp-controller="Details" asp-action="FoodDetails" asp-route-id="@item.MenuItemId" class="card-link">
-                        <div class="card h-100">
+                        <div class="comboback card h-100">
                             <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" />
                             <div class="card-body">
                                 <h5>@item.Name</h5>
@@ -244,7 +248,7 @@
                 <div class="col-md-4 mb-4">
                     <a asp-controller="Details" asp-action="ComboDetails" asp-route-id="@combo.ComboId" class="card-link">
                         <div class="card h-100">
-                            <div class="card-body">
+                            <div class="comboback card-body">
                                 <h5>@combo.Name</h5>
                                 <p>@combo.Description</p>
                                 <p class="price">@combo.Price.ToString("C")</p>
@@ -289,3 +293,72 @@
     <hr class="my-4 text-light" />
 
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hiệu ứng focus search bar
+        const searchInput = document.querySelector(".search-bar");
+        if (searchInput) {
+            searchInput.addEventListener("focus", () => {
+                searchInput.style.transition = "0.3s";
+                searchInput.style.transform = "scale(1.02)";
+            });
+            searchInput.addEventListener("blur", () => {
+                searchInput.style.transform = "scale(1)";
+            });
+        }
+
+        // Highlight danh mục hiện tại
+        const currentCategory = "@Model.Category?.CategoryId";
+        if (currentCategory) {
+            const catCards = document.querySelectorAll(".category-card");
+            catCards.forEach(card => {
+                if (card.innerText.trim() === "@Model.Category?.Name") {
+                    card.classList.add("active-category");
+                }
+            });
+        }
+
+        // Nút scroll to top
+        const scrollBtn = document.createElement("button");
+        scrollBtn.innerText = "↑";
+        scrollBtn.id = "scrollTopBtn";
+        document.body.appendChild(scrollBtn);
+
+        scrollBtn.style.position = "fixed";
+        scrollBtn.style.bottom = "30px";
+        scrollBtn.style.right = "30px";
+        scrollBtn.style.border = "none";
+        scrollBtn.style.background = "linear-gradient(90deg, #a3e635, #4ade80)";
+        scrollBtn.style.color = "#fff";
+        scrollBtn.style.fontSize = "18px";
+        scrollBtn.style.padding = "10px 15px";
+        scrollBtn.style.borderRadius = "50%";
+        scrollBtn.style.cursor = "pointer";
+        scrollBtn.style.display = "none";
+        scrollBtn.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+        scrollBtn.style.transition = "0.3s";
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                scrollBtn.style.display = "block";
+            } else {
+                scrollBtn.style.display = "none";
+            }
+        });
+
+        scrollBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    });
+</script>
+
+<style>
+    /* Style highlight danh mục đang chọn */
+    .active-category {
+        border: 2px solid white !important;
+        transform: scale(1.1) !important;
+        background: linear-gradient(270deg, #16a34a, #65a30d) !important;
+        color: black !important;
+    }
+</style>

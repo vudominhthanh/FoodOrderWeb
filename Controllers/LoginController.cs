@@ -30,7 +30,7 @@ namespace FoodOrderWeb.Controllers
         public IActionResult Index(string Email, string Passwordhash)
         {
             var user = _context.Users
-                .Include(u => u.Address)
+                .Include(u => u.Addresses)
                 .FirstOrDefault(u => u.Email == Email && u.IsActive);
             if (user != null)
             {
@@ -95,16 +95,7 @@ namespace FoodOrderWeb.Controllers
             };
             _context.Users.Add(user);
             _context.SaveChanges();
-            //var address = new Address
-            //{
-            //    UserId = user.UserId,
-            //    Street = street,
-            //    City = city,
-            //    State = state,
-            //    ZipCode = zipCode
-            //};
-            //_context.Addresses.Add(address);
-            //_context.SaveChanges();
+            
             return RedirectToAction("Index", "Login");
         }
 

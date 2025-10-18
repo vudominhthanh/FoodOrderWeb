@@ -2,56 +2,574 @@
 @{
     ViewData["Title"] = "Chi tiết Combo";
     var otherCombos = ViewBag.OtherCombos as List<FoodOrderWeb.Models.Combo>;
+    var categories = ViewBag.Categories as List<FoodOrderWeb.Models.Category>;
+    var vouchers = ViewBag.ComboVouchers as List<FoodOrderWeb.Models.Voucher>;
 }
 
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f9fafb;
+        background-image: url('/image/homeimage.jpeg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+    }
+
+    /* --- Search bar (giống view Search) --- */
+    .search-container {
+        max-width: 800px;
+        margin: 28px auto;
+        position: relative;
+    }
+
+    .search-bar {
+        border-radius: 50px;
+        padding: 12px 20px 12px 45px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+        .search-bar:focus {
+            border-color: #00bfa6;
+            box-shadow: 0 4px 14px rgba(0,191,166,0.12);
+            outline: none;
+        }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 18px;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 18px;
+    }
+
+    .btn-search {
+        border-radius: 50px;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        border: none;
+        color: #fff;
+        padding: 0 20px;
+        transition: 0.3s;
+    }
+
+        .btn-search:hover {
+            background: linear-gradient(270deg,#16a34a,#65a30d);
+        }
+
+    /* --- Section title --- */
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 40px 0 20px 0;
+        color: #333;
+        border-left: 4px solid #00bfa6;
+        padding-left: 10px;
+    }
+
+    /* --- Card --- */
+    .card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+    }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+        }
+
+    .card-img-top {
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .price {
+        color: #e63946;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .empty-state {
+        text-align: center;
+        color: #888;
+        margin: 40px 0;
+        font-size: 16px;
+    }
+
+    /* --- Category --- */
+    .category-card {
+        min-width: 130px;
+        height: 50px;
+        border-radius: 25px;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 0 20px;
+    }
+
+        .category-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            color: black;
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+        }
+
+    /* --- Combo Carousel --- */
+    #comboCarousel img {
+        max-height: 350px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+
+    .carousel-caption {
+        font-size: 14px;
+    }
+
+    /* --- Món trong combo --- */
+    .combo-items-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5 món mỗi hàng */
+        gap: 20px;
+    }
+
+    .combo-card img {
+        width: 100%;
+        height: 180px; /* cố định chiều cao ảnh */
+        object-fit: cover; /* ảnh không méo */
+        border-radius: 8px 8px 0 0;
+    }
+
+
+    /* --- Voucher --- */
+    .voucher-card {
+        border: 2px solid #4ade80;
+        border-radius: 12px;
+        padding: 15px;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        transition: transform 0.2s;
+    }
+
+        .voucher-card:hover {
+            transform: scale(1.05);
+        }
+
+    /* --- Combo khác khung ngang --- */
+    .combo-other-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px 20px;
+        background: #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s, transform 0.2s;
+    }
+
+        .combo-other-box:hover {
+            background: #f9fafb;
+            transform: translateY(-3px);
+        }
+
+        .combo-other-box h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .combo-other-box p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+    /* --- Footer spacing --- */
+    .category-section {
+        margin-bottom: 60px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* --- Section title --- */
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 50px 0 25px 0; /* giãn cách rộng hơn */
+        color: #fff; /* chữ trắng */
+        border-left: 5px solid #22c55e; /* xanh lá nổi */
+        padding-left: 12px;
+    }
+
+    /* --- Danh mục khác --- */
+    .category-section {
+        margin-top: 30px;
+    }
+
+    .category-card {
+        min-width: 100px; /* nhỏ hơn */
+        height: 40px; /* thấp lại */
+        font-size: 13px; /* chữ nhỏ hơn */
+        padding: 0 15px;
+        margin-right: 12px; /* dạt về bên trái */
+        justify-content: flex-start;
+    }
+
+    /* --- Main combo layout --- */
+    .maincombos {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        display: flex;
+        gap: 28px;
+        align-items: stretch;
+    }
+
+        /* left: ảnh carousel */
+        .maincombos .left {
+            flex: 0 0 45%;
+            max-width: 45%;
+            display: flex;
+            align-items: stretch;
+        }
+
+            .maincombos .left .carousel,
+            .maincombos .left .carousel .carousel-inner,
+            .maincombos .left .carousel .carousel-item {
+                width: 100%;
+                height: 100%;
+                min-height: 360px;
+            }
+
+                .maincombos .left .carousel .carousel-item img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                    border-radius: 10px;
+                }
+
+        /* right: thông tin combo */
+        .maincombos .combo-info {
+            flex: 1 1 55%;
+            max-width: 55%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+            .maincombos .combo-info h2 {
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .maincombos .combo-info p {
+                margin: 0;
+                color: #555;
+            }
+
+        .maincombos .price {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e63946;
+        }
+
+    /* nút hành động */
+    .combo-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+        .combo-actions .btn {
+            padding: 10px 18px;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+    /* responsive */
+    @@media (max-width: 991px) {
+        .maincombos
+
+    {
+        flex-direction: column;
+    }
+
+    .maincombos .left, .maincombos .combo-info {
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+
+        .maincombos .left .carousel .carousel-item {
+            min-height: 260px;
+        }
+
+    }
+
+    /* Nút hành động */
+    .combo-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+        .combo-actions .btn {
+            padding: 10px 20px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .combo-actions .btn-success {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            border: none;
+            color: white;
+        }
+
+            .combo-actions .btn-success:hover {
+                background: linear-gradient(270deg, #16a34a, #65a30d);
+                color: black;
+            }
+
+        .combo-actions .btn-danger {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+            border: none;
+            color: white;
+        }
+
+            .combo-actions .btn-danger:hover {
+                background: linear-gradient(270deg, #b91c1c, #ef4444);
+                color: white;
+            }
+
+    /* --- Danh mục khác (giống search) --- */
+    .category-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: flex-start;
+        
+    }
+
+
+        .category-wrapper .category-card {
+            min-width: 120px;
+            height: 45px;
+            border-radius: 25px;
+            background: linear-gradient(90deg, #a3e635, #4ade80);
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 0 20px;
+            text-decoration: none;
+        }
+
+            .category-wrapper .category-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+                color: black;
+                background: linear-gradient(270deg, #16a34a, #65a30d);
+            }
+</style>
+
 <div class="container mt-4">
-    <h2>@Model.Name</h2>
-    <p class="text-muted">@Model.Description</p>
-    <h4 class="text-danger">@Model.Price.ToString("C")</h4>
 
-    <!-- Nút giỏ hàng -->
-    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-2 mb-4">
-        <input type="hidden" name="id" value="@Model.ComboId" />
-        <input type="hidden" name="type" value="combo" />
+    <!-- Thanh Search -->
+    <div class="search-container mb-3">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <form asp-action="Search" method="get" class="d-flex">
+            <input type="search" name="keyword" class="form-control search-bar" placeholder="Tìm combo hoặc món ăn..." />
+            <button type="submit" class="btn btn-search ms-2">Tìm</button>
+        </form>
+    </div>
 
-        <button type="submit" class="btn btn-success">
-            <i class="fa fa-cart-plus"></i> Thêm vào giỏ
-        </button>
+    <!-- Combo chính -->
+    <div class="maincombos">
+        <!-- Bên trái: carousel -->
+        <div class="left">
+            @if (Model.ComboItems != null && Model.ComboItems.Any())
+            {
+                <div id="comboCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @{
+                            var index = 0;
+                            foreach (var ci in Model.ComboItems)
+                            {
+                                <div class="carousel-item @(index == 0 ? "active" : "")">
+                                    <img src="@ci.MenuItem.ImageUrl" class="d-block w-100" alt="@ci.MenuItem.Name" />
+                                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded">
+                                        <h6>@ci.MenuItem.Name</h6>
+                                    </div>
+                                </div>
+                                index++;
+                            }
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#comboCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#comboCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            }
+            else
+            {
+                <p class="empty-state">Combo này chưa có món nào.</p>
+            }
+        </div>
+    </div>
 
-        <button type="submit" formaction="@Url.Action("BuyNow", "Cart")" class="btn btn-danger">
-            <i class="fa fa-bolt"></i> Mua ngay
-        </button>
-    </form>
+        <!-- Bên phải: thông tin -->
+        <div class="combo-info">
+            <h2>@Model.Name</h2>
+            <p>@Model.Description</p>
+            <h4 class="price">@Model.Price.ToString("C")</h4>
 
-    <h4>Món trong combo</h4>
-    <div class="row">
+            <div class="combo-actions">
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-2 mt-3">
+                    <input type="hidden" name="productId" value="@Model.ComboId" />
+                    <input type="hidden" name="isCombo" value="true" />
+                    <input type="hidden" name="quantity" value="1" />
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fa fa-cart-plus"></i> Thêm vào giỏ
+					</button>
+                    <!-- Nút mở form -->
+					<button type="button" class="btn btn-success w-100 py-2"
+							data-bs-toggle="modal" data-bs-target="#checkoutModal">
+						Thanh toán ngay
+					</button>
+                </form>
+            </div>
+        </div>
+    <!-- Món trong combo -->
+    <h4 class="section-title">Món trong combo</h4>
+    <div class="combo-items-grid">
         @foreach (var ci in Model.ComboItems)
         {
-            <div class="col-md-3 mb-3">
-                <div class="card h-100">
+            <div class="combo-card">
+                <div class="card h-100 shadow-sm">
                     <img src="@ci.MenuItem.ImageUrl" class="card-img-top" alt="@ci.MenuItem.Name" />
                     <div class="card-body text-center">
-                        <h6>@ci.MenuItem.Name</h6>
+                        <h6 class="fw-bold">@ci.MenuItem.Name</h6>
                         <p class="text-danger">@ci.MenuItem.Price.ToString("C")</p>
+                        <a asp-action="FoodDetails" asp-route-id="@ci.MenuItem.MenuItemId"
+                           class="btn btn-outline-primary btn-sm">
+                            Xem món
+                        </a>
                     </div>
                 </div>
             </div>
         }
     </div>
 
-    <h4 class="mt-5">Combo khác</h4>
-    <div class="row">
-        @foreach (var combo in otherCombos)
-        {
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5>@combo.Name</h5>
-                        <p>@combo.Description</p>
-                        <a asp-action="ComboDetails" asp-route-id="@combo.ComboId" class="btn btn-outline-success">Xem chi tiết</a>
+
+    <!-- Voucher combo -->
+    @if (vouchers != null && vouchers.Any())
+    {
+        <h4 class="section-title">Voucher cho combo</h4>
+        <div class="row">
+            @foreach (var v in vouchers)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm text-center p-3 border-success">
+                        <h6 class="fw-bold text-success">@v.Code</h6>
+                        <p class="text-muted">@v.Description</p>
+                        <p class="fw-bold text-danger">Giảm @v.DiscountPercent%</p>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="empty-state">Không có voucher nào cho combo này.</p>
+    }
+
+    <!-- Combo khác -->
+    <h4 class="section-title">Combo khác</h4>
+    @if (otherCombos != null && otherCombos.Any())
+    {
+        <div class="row">
+            @foreach (var combo in otherCombos)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="border rounded shadow-sm p-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">@combo.Name</h6>
+                            <p class="text-danger fw-bold mb-0">@combo.Price.ToString("C")</p>
+                        </div>
+                        <a asp-action="ComboDetails" asp-route-id="@combo.ComboId" class="btn btn-outline-success btn-sm">
+                            Xem
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="empty-state">Không có combo khác để hiển thị.</p>
+    }
+
+    <!-- Danh mục khác -->
+    <h4 class="section-title">Danh mục khác</h4>
+    @if (categories != null && categories.Any())
+    {
+        <div class="category-wrapper">
+            @foreach (var c in categories)
+            {
+                <a asp-action="Category" asp-route-id="@c.CategoryId" class="category-card">
+                    <h6 class="fw-bold mb-0">@c.Name</h6>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="empty-state">Hiện chưa có danh mục nào.</p>
+    }
+
+    <hr class="text-light"/>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let carouselEl = document.querySelector('#comboCarousel');
+        if (carouselEl) {
+            let carousel = new bootstrap.Carousel(carouselEl, {
+                interval: 4000, // 4s tự chạy
+                ride: 'carousel'
+            });
+        }
+    });
+
+    $.post('/Cart/AddToCart', { productId: id, isCombo: false, quantity: 1 })
+    .done(function () {
+        refreshCartCount(); // 🟢 cập nhật số lượng ở navbar
+        alert("Đã thêm vào giỏ hàng!");
+    });
+
+</script>
+    @await Html.PartialAsync("~/Views/Order/_CheckoutComboPartial.cshtml", Model)

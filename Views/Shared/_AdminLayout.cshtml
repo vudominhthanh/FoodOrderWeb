@@ -3,6 +3,12 @@
 @{
     Layout = null;
     var title = ViewData["Title"] ?? "Admin Dashboard";
+
+    var displayName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                      ?? User.Identity?.Name
+                      ?? "Admin";
+
+    string activePage = ViewData["ActivePage"]?.ToString() ?? "";
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -14,48 +20,156 @@
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="stylesheet" href="~/css/admin.css" />
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #212529;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+            .sidebar::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .sidebar::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+            }
+
+            .sidebar .nav-link {
+                border-radius: 6px;
+                transition: all 0.2s ease-in-out;
+            }
+
+                .sidebar .nav-link:hover {
+                    background-color: #198754;
+                    color: #fff !important;
+                }
+
+        .main-content {
+            margin-left: 250px; /* để không bị sidebar đè */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        footer {
+            margin-top: auto;
+        }
+
+        .dropdown-menu {
+            font-size: 0.95rem;
+        }
+    </style>
 </head>
-<body class="d-flex">
-    <nav class="bg-dark text-light p-3 sidebar vh-100 shadow-sm" style="width:250px;">
-        <div class="mb-4 text-center">
-            <a class="navbar-brand fw-bold fs-4 text-gradient" asp-controller="AdminDashboard" asp-action="Index">
-                FatFod Admin <i class="fa-solid fa-bowl-food"></i>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar text-light p-3 shadow-sm">
+        <div class="text-center mb-4">
+            <a class="navbar-brand fw-bold fst-italic fs-4 text-success text-decoration-none" asp-controller="AdminDashboard" asp-action="Index">
+                <i class="fa-solid fa-bowl-food me-2"></i> FatFod Admin
             </a>
+        </div>
+
+        <div class="d-flex flex-column align-items-center mb-4">
+            <i class="fa-solid fa-circle-user fa-4x mb-2 text-secondary"></i>
+            <span class="fw-semibold">@displayName</span>
+            <small class="text-muted">Admin</small>
         </div>
 
         <ul class="nav flex-column">
             <li class="nav-item mb-2">
-                <a class="nav-link text-light fw-semibold" asp-controller="AdminDashboard" asp-action="Index">
+                <a class="nav-link text-light fw-semibold @(activePage == "Dashboard" ? "bg-success" : "")"
+                   asp-controller="AdminDashboard" asp-action="Index">
                     <i class="fa-solid fa-chart-line me-2"></i> Dashboard
                 </a>
             </li>
             <li class="nav-item mb-2">
-                <a class="nav-link text-light fw-semibold" asp-controller="Users" asp-action="Index">
+                <a class="nav-link text-light fw-semibold @(activePage == "Users" ? "bg-success" : "")"
+                   asp-controller="AdminDashboard" asp-action="Users">
                     <i class="fa-solid fa-users me-2"></i> Users
                 </a>
             </li>
             <li class="nav-item mb-2">
-                <a class="nav-link text-light fw-semibold" asp-controller="Orders" asp-action="Index">
+                <a class="nav-link text-light fw-semibold @(activePage == "Products" ? "bg-success" : "")"
+                   asp-controller="AdminDashboard" asp-action="Products">
+                    <i class="fa-solid fa-box-open me-2"></i> Products
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold @(activePage == "Orders" ? "bg-success" : "")"
+                   asp-controller="Orders" asp-action="Index">
                     <i class="fa-solid fa-receipt me-2"></i> Orders
                 </a>
             </li>
             <li class="nav-item mb-2">
-                <a class="nav-link text-light fw-semibold" asp-controller="Products" asp-action="Index">
-                    <i class="fa-solid fa-box-open me-2"></i> Products
+                <a class="nav-link text-light fw-semibold @(activePage == "Categories" ? "bg-success" : "")"
+                   asp-controller="Categories" asp-action="Index">
+                    <i class="fa-solid fa-layer-group me-2"></i> Categories
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold @(activePage == "Vouchers" ? "bg-success" : "")"
+                   asp-controller="Vouchers" asp-action="Index">
+                    <i class="fa-solid fa-ticket me-2"></i> Vouchers
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold @(activePage == "Combos" ? "bg-success" : "")"
+                   asp-controller="Combos" asp-action="Index">
+                    <i class="fa-solid fa-burger me-2"></i> Combos
                 </a>
             </li>
         </ul>
     </nav>
 
-    <div class="flex-grow-1 d-flex flex-column">
+    <!-- Main -->
+    <div class="main-content">
+        <!-- Header -->
         <header class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom shadow-sm bg-white">
-            @* h5 thanh search *@
-            <h5 class="mb-0 text-light">@title</h5> 
-            <div>
-                <span class="me-3 fw-bold">Welcome, Admin</span>
-                <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill ">Logout</button>
-                </form>
+            <h5 class="mb-0 fw-bold">@title</h5>
+
+            <div class="d-flex align-items-center">
+                <a href="#" class="btn btn-link position-relative me-3 text-dark">
+                    <i class="fa-solid fa-bell fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">3</span>
+                </a>
+
+                <div class="dropdown">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" href="#" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-circle-user fs-4 me-2"></i>
+                        <strong>@displayName</strong>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="fa-solid fa-user me-2"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-controller="Login" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </header>
 
@@ -63,33 +177,12 @@
             @RenderBody()
         </main>
 
-        <footer class="bg-dark text-light text-center py-3 mt-auto shadow-sm">
+        <footer class="bg-dark text-light text-center py-3 shadow-sm">
             <small>© 2025 - FatFod Admin Dashboard</small>
         </footer>
     </div>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)
-
-    <script>
-        // Fade-in hiệu ứng cho các card
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".dashboard-card").forEach((card, i) => {
-                setTimeout(() => {
-                    card.classList.add("fade-in");
-                }, i * 150); // delay theo index cho hiệu ứng domino
-            });
-        });
-
-        // Hiệu ứng sidebar active link
-        const links = document.querySelectorAll(".sidebar .nav-link");
-        links.forEach(link => {
-            link.addEventListener("click", () => {
-                links.forEach(l => l.classList.remove("active"));
-                link.classList.add("active");
-            });
-        });
-    </script>
-    
 </body>
 </html>

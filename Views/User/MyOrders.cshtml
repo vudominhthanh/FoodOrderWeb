@@ -1,0 +1,118 @@
+﻿@model List<FoodOrderWeb.Models.Order>
+
+@{
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    ViewData["Title"] = "Lịch sử đơn hàng";
+}
+
+<style>
+    .order-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+    .order-header {
+        background: linear-gradient(90deg, #4ade80, #16a34a);
+        color: #fff;
+        border-radius: 16px 16px 0 0;
+        padding: 10px 16px;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .badge-status {
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .bg-pending {
+        background-color: #facc15;
+        color: #333;
+    }
+
+    .bg-confirmed {
+        background-color: #38bdf8;
+        color: #fff;
+    }
+
+    .bg-completed {
+        background-color: #22c55e;
+        color: #fff;
+    }
+
+    .bg-cancelled {
+        background-color: #ef4444;
+        color: #fff;
+    }
+</style>
+
+<div class="container py-4">
+    <h3 class="fw-bold text-success mb-4 text-center">
+        <i class="bi bi-receipt-cutoff me-2"></i> Lịch sử đơn hàng
+    </h3>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center shadow-sm p-4">
+            <i class="bi bi-emoji-smile text-primary fs-3 d-block mb-2"></i>
+            Bạn chưa có đơn hàng nào. <br />
+            <a asp-controller="Home" asp-action="Index" class="btn btn-success mt-3">🛍️ Mua sắm ngay</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var order in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="order-card">
+                        <div class="order-header">
+                            Đơn hàng #@order.OrderId
+                        </div>
+                        <div class="p-3">
+                            <p class="mb-1"><strong>📅 Ngày đặt:</strong> @order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            <p class="mb-1"><strong>📍 Địa chỉ:</strong> @order.Address?.Street, @order.Address?.District, @order.Address?.City</p>
+                            <p class="mb-1"><strong>💳 Thanh toán:</strong> @order.PaymentMethod?.Name</p>
+                            <p class="mb-1">
+                                <strong>💰 Tổng tiền:</strong>
+                                <span class="text-danger fw-semibold">@order.TotalAmount.ToString("N0") ₫</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>📦 Trạng thái:</strong>
+                                @{
+                                    var status = order.OrderStatus?.Name ?? "Unknown";
+                                    var badgeClass = status switch
+                                    {
+                                        "Pending" => "bg-pending",
+                                        "Confirmed" => "bg-confirmed",
+                                        "Completed" => "bg-completed",
+                                        "Cancelled" => "bg-cancelled",
+                                        _ => "bg-secondary text-white"
+                                    };
+                                }
+                                <span class="badge-status @badgeClass">@status</span>
+                            </p>
+
+                            <div class="text-end mt-3">
+                                <a asp-controller="Details"
+                                   asp-action="OrderDetail"
+                                   asp-route-id="@order.OrderId"
+                                   class="btn btn-outline-success btn-sm fw-semibold">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

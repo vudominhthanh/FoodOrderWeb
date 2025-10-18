@@ -1,0 +1,263 @@
+﻿@model FoodOrderWeb.Models.CartViewModel
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var combos = Model.Items.Where(x => x.IsCombo).ToList();
+    var foods = Model.Items.Where(x => !x.IsCombo).ToList();
+}
+
+<style>
+    .cart-section {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
+
+    .cart-item {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.25s ease;
+    }
+
+        .cart-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+    .cart-item-info {
+        flex: 1;
+        margin-left: 15px;
+    }
+
+        .cart-item-info h5 {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .cart-item-info p {
+            margin: 0;
+            color: #555;
+            font-size: 15px;
+        }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+        .quantity-control button {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+            .quantity-control button:hover {
+                background: #4ade80;
+                color: white;
+            }
+
+    .btn-remove {
+        border: none;
+        background: transparent;
+        color: #e11d48;
+        cursor: pointer;
+        font-size: 20px;
+        transition: 0.2s;
+    }
+
+        .btn-remove:hover {
+            transform: scale(1.1);
+        }
+
+    .checkout-bar {
+        position: sticky;
+        bottom: 0;
+        background: #fff;
+        border-top: 1px solid #ddd;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 0 0 12px 12px;
+    }
+
+    .checkout-btn {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        border: none;
+        color: white;
+        font-size: 18px;
+        padding: 12px 40px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: 0.25s;
+    }
+
+        .checkout-btn:hover {
+            opacity: 0.9;
+        }
+</style>
+
+<div class="container py-4">
+    <h3 class="fw-bold mb-4 text-light">🛒 Giỏ hàng của bạn</h3>
+
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info">Giỏ hàng trống.</div>
+    }
+    else
+    {
+        <!-- COMBO -->
+        @if (combos.Any())
+        {
+            <div class="cart-section">
+                <h5 class="mb-3 text-warning fw-semibold">🍱 Combo</h5>
+                @foreach (var item in combos)
+                {
+                    <div class="cart-item" data-id="@item.ProductId" data-combo="true">
+                        <img src="@item.ImageUrl ?? " /image/noimg.png"" alt="@item.ProductName" />
+                        <div class="cart-item-info">
+                            <h5>@item.ProductName</h5>
+                            <p>Số lượng: <span class="quantity">@item.Quantity</span></p>
+                            <p>Đơn giá: @item.UnitPrice.ToString("N0") ₫</p>
+                            <p>Thành tiền: <strong class="item-total">@item.TotalPrice.ToString("N0") ₫</strong></p>
+
+                            <div class="quantity-control">
+                                <button class="decrease">−</button>
+                                <input type="text" class="form-control text-center quantity-input" value="@item.Quantity" style="width:50px;">
+                                <button class="increase">+</button>
+                            </div>
+                        </div>
+                        <button class="btn-remove remove-item">🗑️</button>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- MÓN ĂN -->
+        @if (foods.Any())
+        {
+            <div class="cart-section">
+                <h5 class="mb-3 text-success fw-semibold">🍛 Món ăn</h5>
+                @foreach (var item in foods)
+                {
+                    <div class="cart-item" data-id="@item.ProductId" data-combo="false" data-size="@item.MenuItemSizeId">
+                        <img src="@item.ImageUrl ?? " /image/noimg.png"" alt="@item.ProductName" />
+                        <div class="cart-item-info">
+                            <h5>@item.ProductName</h5>
+                            @if (!string.IsNullOrEmpty(item.SizeName))
+                            {
+                                <p>Kích cỡ: <strong>@item.SizeName</strong></p>
+                            }
+                            <p>Số lượng: <span class="quantity">@item.Quantity</span></p>
+                            <p>Đơn giá: @item.UnitPrice.ToString("N0") ₫</p>
+                            <p>Thành tiền: <strong class="item-total">@item.TotalPrice.ToString("N0") ₫</strong></p>
+
+                            <div class="quantity-control">
+                                <button class="decrease">−</button>
+                                <input type="text" class="form-control text-center quantity-input" value="@item.Quantity" style="width:50px;">
+                                <button class="increase">+</button>
+                            </div>
+                        </div>
+                        <button class="btn-remove remove-item">🗑️</button>
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- Thanh toán -->
+        <div class="checkout-bar mt-4">
+            <div>
+                <h4>Tổng cộng: <span id="total-price" class="text-danger fw-bold">@Model.Total.ToString("N0") ₫</span></h4>
+            </div>
+            <div>
+                <button id="clear-cart" class="btn btn-outline-danger me-3">🧹 Xóa tất cả</button>
+                <button class="checkout-btn" data-bs-toggle="modal" data-bs-target="#checkoutModal">Thanh toán ngay</button>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Modal Thanh toán -->
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-light text-dark rounded-4 shadow-lg p-4">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">💳 Thanh toán</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("~/Views/Order/_CheckoutFormPartial.cshtml", new FoodOrderWeb.Models.ViewModel.OrderViewModel())
+            </div>
+             
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // 🧩 Cập nhật số lượng
+        $(".increase, .decrease").on("click", function () {
+            const item = $(this).closest(".cart-item");
+            let quantity = parseInt(item.find(".quantity-input").val());
+            const isCombo = item.data("combo");
+            const productId = item.data("id");
+            const sizeId = item.data("size");
+
+            quantity += $(this).hasClass("increase") ? 1 : -1;
+            if (quantity < 1) return;
+
+            $.post("/Cart/UpdateQuantity", { productId, isCombo, menuItemSizeId: sizeId, quantity }, function () {
+                location.reload();
+            });
+        });
+
+        // 🗑 Xóa 1 item
+        $(".remove-item").on("click", function () {
+            const item = $(this).closest(".cart-item");
+            const productId = item.data("id");
+            const isCombo = item.data("combo");
+            const sizeId = item.data("size");
+
+            $.post("/Cart/RemoveItem", { productId, isCombo, menuItemSizeId: sizeId }, function () {
+                location.reload();
+            });
+        });
+
+        // 🧹 Xóa toàn bộ
+        $("#clear-cart").on("click", function () {
+            if (confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) {
+                $.post("/Cart/ClearCart", function () {
+                    location.reload();
+                });
+            }
+        });
+
+        // 🔄 Cập nhật cart-count trên navbar
+        function updateCartCount() {
+            $.get("/Cart/GetCartCount", function (data) {
+                $("#cart-count").text(data.count);
+            });
+        }
+        updateCartCount();
+    </script>
+}

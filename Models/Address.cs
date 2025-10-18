@@ -17,12 +17,6 @@ public partial class Address
 
     public string? District { get; set; }
 
-    public string? PostalCode { get; set; }
-
-    public decimal? Latitude { get; set; }
-
-    public decimal? Longitude { get; set; }
-
     public bool IsDefault { get; set; }
 
     public DateTime CreatedAt { get; set; }
@@ -30,4 +24,9 @@ public partial class Address
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual User User { get; set; } = null!;
+
+    public static implicit operator Address(string v)
+    {
+        throw new NotImplementedException();
+    }
 }

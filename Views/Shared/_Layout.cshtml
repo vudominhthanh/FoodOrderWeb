@@ -1,5 +1,7 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿    @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims;
+@using Newtonsoft.Json
+@inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
 <html lang="en">
@@ -31,35 +33,56 @@
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item position-relative">
-                                <a href="#" id="userIcon" class="nav-link d-flex align-items-center user-link">
+                            <li class="nav-item dropdown d-flex align-items-center position-relative">
+
+                                <!-- User icon + name -->
+                                <a href="#" id="userIcon" class="nav-link d-flex align-items-center user-link me-3">
                                     <i class="fa-solid fa-user fa-lg user-icon"></i>
                                     <span class="ms-2 user-name">@User.Identity.Name</span>
                                 </a>
 
+                                @* cart *@
+                                @{
+                                    // Lấy dữ liệu giỏ hàng từ Session
+                                    var sessionData = HttpContextAccessor.HttpContext.Session.GetString("Cart");
+                                    var cart = string.IsNullOrEmpty(sessionData)
+                                    ? new List<FoodOrderWeb.Models.ViewModel.CartItemViewModel>()
+                                    : JsonConvert.DeserializeObject<List<FoodOrderWeb.Models.ViewModel.CartItemViewModel>>(sessionData);
 
-                                <div id="userPanel" class="position-absolute end-0 mt-2 p-3 bg-white border rounded-3 shadow-lg user-panel">
+                                    var cartCount = cart.Sum(x => x.Quantity);
+                                }
+                                <a href="/Cart/Index" class="nav-link position-relative">
+                                    <i class="fa-solid fa-cart-shopping fs-5 text-light"></i>
+                                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" id="cart-count">
+                                        @cartCount
+                                    </span>
+                                </a>
+
+
+                                <!-- User panel -->
+                                <div id="userPanel" class="position-absolute end-0 mt-2 p-3 bg-white border rounded-3 shadow-lg user-panel" style="top: 100%;">
                                     <h6 class="mb-3 text-center fw-bold text-success">User Panel</h6>
-                                    
-                                    @if(User.IsInRole("Admin"))
+
+                                    @if (User.IsInRole("Admin"))
                                     {
                                         <div class="mb-2">
-                                            <a class="btn btn-outline-primary btnpanelad w-100 rounded-pill" asp-controller="AdminDashboardController" asp-action="Index">
+                                            <a class="btn btn-outline-primary btnpanelad w-100 rounded-pill"
+                                               asp-controller="AdminDashboard" asp-action="Index">
                                                 Admin Dashboard
                                             </a>
                                         </div>
-									}
+                                    }
+
                                     <div class="mb-2">
-                                        <a class="btn btn-outline-success btnpanel w-100 rounded-pill" asp-controller="Login" asp-action="Profile">
+                                        <a class="btn btn-outline-success btnpanel w-100 rounded-pill"
+                                           asp-controller="User" asp-action="Panel">
                                             View Profile
                                         </a>
                                     </div>
 
-                                    <div>
-                                        <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">Logout</button>
-                                        </form>
-                                    </div>
+                                    <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger w-100 rounded-pill">Logout</button>
+                                    </form>
                                 </div>
                             </li>
                         }
@@ -112,6 +135,18 @@
         </div>
     </footer>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const btn = document.getElementById("openCheckoutModal");
+          if (btn) {
+            btn.addEventListener("click", function() {
+              new bootstrap.Modal(document.getElementById("checkoutModal")).show();
+            });
+          }
+        });
+    </script>
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -133,6 +168,32 @@
                 }
             });
         }
+    </script>
+
+    @* minicart *@
+
+    <script>
+        // 🧩 Hàm tải mini-cart
+        function loadMiniCart() {
+            $.get("/Cart/MiniCart", function (data) {
+                $("#cartItemsContainer").html(data);
+            });
+        }
+
+        // 🧩 Khi thêm sản phẩm (AJAX trả về success)
+        function addToCart(productId, isCombo, menuItemSizeId, quantity = 1) {
+            $.post("/Cart/AddToCart", { productId, isCombo, menuItemSizeId, quantity }, function (res) {
+                if (res.success) {
+                    $("#cartCount").text(res.count);
+                    loadMiniCart();
+                }
+            });
+        }
+
+        // Gọi 1 lần khi load trang
+        $(document).ready(function () {
+            loadMiniCart();
+        });
     </script>
 </body>
 </html>

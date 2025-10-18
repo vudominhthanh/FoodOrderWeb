@@ -1,50 +1,551 @@
 ﻿@model FoodOrderWeb.Models.MenuItem
 @{
     ViewData["Title"] = "Chi tiết món ăn";
-    var relatedFoods = ViewBag.RelatedFoods as List<FoodOrderWeb.Models.MenuItem>;
+    var relatedFoods = ViewBag.RelatedFoods as List<FoodOrderWeb.Models.MenuItem> ?? new List<FoodOrderWeb.Models.MenuItem>();
+    var vouchersForFood = ViewBag.VouchersForFood as List<FoodOrderWeb.Models.Voucher> ?? new List<FoodOrderWeb.Models.Voucher>();
+    var vouchersForCategory = ViewBag.VouchersForCategory as List<FoodOrderWeb.Models.Voucher> ?? new List<FoodOrderWeb.Models.Voucher>();
+    var categories = ViewBag.Categories as List<FoodOrderWeb.Models.Category> ?? new List<FoodOrderWeb.Models.Category>();
+    var combosWithFood = ViewBag.CombosWithFood as List<FoodOrderWeb.Models.Combo> ?? new List<FoodOrderWeb.Models.Combo>();
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6">
-            <img src="@Model.ImageUrl" class="img-fluid rounded shadow" alt="@Model.Name" />
+<style>
+    /* ---------- COPY STYLE FROM SEARCH (keeps UI consistent) ---------- */
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f9fafb;
+        background-image: url('/image/homeimage.jpeg');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        color: #111;
+    }
+
+    /* Search bar (same as Search view) */
+    .search-container {
+        max-width: 800px;
+        margin: 28px auto;
+        position: relative;
+    }
+
+    .search-bar {
+        border-radius: 50px;
+        padding: 12px 20px 12px 45px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+        .search-bar:focus {
+            border-color: #00bfa6;
+            box-shadow: 0 4px 14px rgba(0,191,166,0.12);
+            outline: none;
+        }
+
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 18px;
+        transform: translateY(-50%);
+        color: #888;
+        font-size: 18px;
+    }
+
+    .btn-search {
+        border-radius: 50px;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        border: none;
+        color: #fff;
+        padding: 0 20px;
+        transition: 0.3s;
+    }
+
+        .btn-search:hover {
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+        }
+
+    .filter-bar {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 28px 0 16px 0;
+        color: #333;
+        border-left: 4px solid #00bfa6;
+        padding-left: 10px;
+    }
+
+    /* Cards */
+    .card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.3s ease, transform 0.3s ease;
+        cursor: pointer;
+        background: #fff;
+        opacity: 0;
+        transform: translateY(10px) scale(0.995);
+    }
+
+        /* Visible class applied by JS to fade-in */
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+
+    .card-img-top {
+        height: 160px;
+        object-fit: cover;
+    }
+
+    .price {
+        color: #e63946;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    a.card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Category button (keep exactly as Search) */
+    .category-card {
+        min-width: 130px;
+        height: 50px;
+        border-radius: 25px;
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        padding: 0 20px;
+    }
+
+        .category-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+            color: black;
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+        }
+
+    .btnloc {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: whitesmoke;
+    }
+
+        .btnloc:hover {
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+            color: black;
+        }
+
+    /* layout for 5 items per row like Search */
+    .food-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+        .food-grid .food-item {
+            flex: 1 1 calc(20% - 20px);
+            max-width: calc(20% - 20px);
+        }
+
+    /* responsive fallback */
+    @@media (max-width: 1200px) {
+        .food-grid .food-item
+
+    {
+        flex: 1 1 calc(33.333% - 20px);
+        max-width: calc(33.333% - 20px);
+    }
+
+    }
+    @@media (max-width: 768px) {
+        .food-grid .food-item
+
+    {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+    }
+
+    }
+    @@media (max-width: 480px) {
+        .food-grid .food-item
+
+    {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    }
+
+    /* -------- product main (white panel, taller) -------- */
+    .main-product {
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 28px;
+        box-shadow: 0 12px 34px rgba(0,0,0,0.12);
+        margin-top: 18px;
+        min-height: 520px; /* taller (approx 1.5x) */
+    }
+
+        .main-product h2 {
+            color: #111;
+            font-weight: 700;
+        }
+
+        .main-product p {
+            color: #444;
+        }
+
+    /* Voucher small card styling */
+    .voucher-card .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 140px;
+    }
+
+    .voucher-code {
+        font-weight: 700;
+        color: #e11d48;
+    }
+
+    /* category-section layout */
+    .category-section {
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    /* small utility */
+    .muted {
+        margin: 0 0 0 50px;
+        color: lightgray;
+    }
+</style>
+
+<div class="container">
+
+    <!-- SEARCH (exactly same placement + classes as Search page) -->
+    <div class="search-container">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <form asp-controller="Home" asp-action="Search" method="get" class="d-flex">
+            <input type="search" name="query" class="form-control search-bar" placeholder="Tìm món ăn, combo, danh mục..." />
+            <button type="submit" class="btn btn-search ms-2">Tìm</button>
+        </form>
+    </div>
+
+    <!-- ---------- PRODUCT MAIN (white, taller) ---------- -->
+    <div class="main-product row">
+        <div class="col-md-6 mb-3">
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded" style="height:100%; max-height:480px; object-fit:cover; width:100%;" />
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 d-flex flex-column justify-content-center">
             <h2>@Model.Name</h2>
-            <p class="text-muted">@Model.Description</p>
+            <p class="muted">@Model.Description</p>
             <h4 class="text-danger">@Model.Price.ToString("C")</h4>
-            <p><strong>Danh mục:</strong> @Model.Category?.Name</p>
+            <p><strong>Danh mục:</strong> <span class="text-success">@Model.Category?.Name</span></p>
 
-            <!-- Giỏ hàng -->
-            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-2">
-                <input type="hidden" name="id" value="@Model.MenuItemId" />
-                <input type="hidden" name="type" value="menuitem" />
+            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="add-to-cart-form d-flex gap-2 mt-3">
+                <!-- ID món ăn -->
+                <input type="hidden" name="productId" value="@Model.MenuItemId" />
 
+                <!-- Đây không phải combo -->
+                <input type="hidden" name="isCombo" value="false" />
+
+                <!-- Nếu món có size, truyền id size -->
+                @if (Model.MenuItemSizes != null && Model.MenuItemSizes.Any())
+                {
+                    <div class="mt-3">
+                        <label for="menuItemSizeId" class="form-label">Chọn kích cỡ:</label>
+                        <select name="menuItemSizeId" id="menuItemSizeId" class="form-select w-auto d-inline-block">
+                            @foreach (var size in Model.MenuItemSizes)
+                            {
+                                <option value="@size.MenuItemSizeId">
+                                    @size.SizeName - @size.Price.ToString("C")
+                                </option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <!-- Số lượng mặc định -->
+                <input type="hidden" name="quantity" value="1" />
+
+                <!-- Nút thêm giỏ -->
                 <button type="submit" class="btn btn-success">
                     <i class="fa fa-cart-plus"></i> Thêm vào giỏ
                 </button>
-
-                <button type="submit" formaction="@Url.Action("BuyNow", "Cart")" class="btn btn-danger">
-                    <i class="fa fa-bolt"></i> Mua ngay
-                </button>
+				<!-- Nút mở form -->
+				<button type="button" class="btn btn-success py-2"
+						data-bs-toggle="modal" data-bs-target="#checkoutModal">
+					Thanh toán ngay
+				</button>
             </form>
         </div>
     </div>
-
-    <h4 class="mt-5">Món tương tự</h4>
+    <!-- ---------- VOUCHERS (under product main) ---------- -->
+    <h4 class="section-title text-white">Voucher</h4>
     <div class="row">
-        @foreach (var food in relatedFoods)
+        @{
+            var mergedVouchers = new List<FoodOrderWeb.Models.Voucher>();
+            mergedVouchers.AddRange(vouchersForFood);
+            // avoid duplicates from category list
+            foreach (var v in vouchersForCategory) { if (!mergedVouchers.Any(m => m.VoucherId == v.VoucherId)) mergedVouchers.Add(v); }
+        }
+
+        @if (mergedVouchers.Any())
         {
-            <div class="col-md-4 mb-3">
-                <div class="card h-100">
-                    <img src="@food.ImageUrl" class="card-img-top" alt="@food.Name" />
-                    <div class="card-body text-center">
-                        <h5>@food.Name</h5>
-                        <p class="text-danger">@food.Price.ToString("C")</p>
-                        <a asp-action="FoodDetails" asp-route-id="@food.MenuItemId" class="btn btn-outline-success">Xem chi tiết</a>
+            foreach (var v in mergedVouchers)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card voucher-card h-100">
+                        <div class="card-body text-center">
+                            <div class="voucher-code">@v.Code</div>
+                            <p class="mt-2">@v.Description</p>
+                            <p class="muted">
+                                @if (v.DiscountPercent != null)
+                                {
+                                    <text>Giảm @v.DiscountPercent.Value.ToString("0.##")% </text>
+                                }
+                                else if (v.DiscountAmount != null)
+                                {
+                                    <text>Giảm @v.DiscountAmount.Value.ToString("C")</text>
+                                }
+                            </p>
+                            <small class="muted">HSD: @v.EndDate.ToString("dd/MM/yyyy")</small>
+                        </div>
                     </div>
                 </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="muted ">Không có voucher áp dụng cho món này hoặc danh mục.</div>
             </div>
         }
     </div>
+
+    <!-- ---------- MÓN TƯƠNG TỰ (5/cột like Search) ---------- -->
+    <h4 class="section-title text-white">Món tương tự</h4>
+    <div class="food-grid">
+        @if (relatedFoods.Any())
+        {
+            foreach (var food in relatedFoods)
+            {
+                <div class="food-item">
+                    <a asp-controller="Details" asp-action="FoodDetails" asp-route-id="@food.MenuItemId" class="card-link">
+                        <div class="card h-100">
+                            <img src="@food.ImageUrl" class="card-img-top" alt="@food.Name" />
+                            <div class="card-body text-center">
+                                <h5 class="mb-1">@food.Name</h5>
+                                <p class="price mb-1">@food.Price.ToString("C")</p>
+                                <span class="badge @(food.IsAvailable ? "bg-success" : "bg-secondary")">
+                                    @(food.IsAvailable ? "Có sẵn" : "Tạm hết")
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="muted">Không có món tương tự.</div>
+        }
+    </div>
+
+    <!-- ---------- COMBO CÓ MÓN NÀY ---------- -->
+    <h4 class="section-title mt-4 text-white">Combo</h4>
+    <div class="row">
+        @if (combosWithFood.Any())
+        {
+            foreach (var combo in combosWithFood)
+            {
+                <div class="col-md-4 mb-3">
+                    <a asp-controller="Details" asp-action="ComboDetails" asp-route-id="@combo.ComboId" class="card-link">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>@combo.Name</h5>
+                                <p class="muted">@combo.Description</p>
+                                <p class="price">@combo.Price.ToString("C")</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12"><div class="muted">Không có combo chứa món này.</div></div>
+        }
+    </div>
+
+    <!-- ---------- DANH MỤC KHÁC (giống Search) ---------- -->
+    <div class="category-section">
+        <h4 class="section-title text-white">Danh mục khác</h4>
+        <div class="d-flex flex-wrap gap-3 mt-3">
+            @foreach (var cat in categories)
+            {
+                <div class="category-card"
+                     onclick="location.href='@Url.Action("CategoryName", "Category", new { id = cat.CategoryId })'">
+                    <span>@cat.Name</span>
+                </div>
+            }
+        </div>
+    </div>
+
+    <hr class="my-4 text-light" />
 </div>
+
+<!-- --------- JS: small animations / progressive reveal / smooth hover --------- -->
+<script>
+    (function () {
+        // progressive reveal cards
+        window.addEventListener('DOMContentLoaded', function () {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, idx) => {
+                setTimeout(() => card.classList.add('visible'), 60 * idx);
+            });
+
+            // subtle image hover zoom for product main image
+            const mainImg = document.querySelector('.main-product img');
+            if (mainImg) {
+                mainImg.style.transition = 'transform .35s ease';
+                mainImg.addEventListener('mouseenter', () => mainImg.style.transform = 'scale(1.03)');
+                mainImg.addEventListener('mouseleave', () => mainImg.style.transform = 'scale(1)');
+            }
+
+            // category-card click: quick micro-feedback before navigation
+            document.querySelectorAll('.category-card').forEach(el => {
+                el.addEventListener('click', function (e) {
+                    // visual click feedback
+                    el.style.transform = 'scale(.98)';
+                    setTimeout(() => {
+                        // navigate (already handled by inline onclick, but in case)
+                        // keep this short so UX feels snappy
+                        const href = el.getAttribute('data-href');
+                        if (href) window.location.href = href;
+                        el.style.transform = '';
+                    }, 120);
+                });
+            });
+        });
+    })();
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector(".add-to-cart-form");
+        if (!form) return;
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            $.post(form.action, data, function (res) {
+                if (res.success) {
+                    alert("🛒 Đã thêm vào giỏ hàng!");
+                    $("#cart-count").text(res.count);
+                    if (typeof refreshCartCount === "function") refreshCartCount();
+                } else {
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+        });
+    });
+</script>
+
+
+<!-- 🧩 Modal chọn size -->
+<div class="modal fade" id="addToCartModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-success text-white rounded-top-4">
+                <h5 class="modal-title">Chọn tuỳ chọn món ăn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="modalAddToCartForm">
+                    <input type="hidden" name="productId" id="modalProductId" />
+                    <input type="hidden" name="isCombo" id="modalIsCombo" value="false" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tên món:</label>
+                        <div id="modalProductName" class="fw-bold"></div>
+                    </div>
+
+                    <div class="mb-3" id="sizeContainer">
+                        <label class="form-label fw-semibold">Chọn kích cỡ:</label>
+                        <select id="modalSizeSelect" name="menuItemSizeId" class="form-select">
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Số lượng:</label>
+                        <input type="number" name="quantity" id="modalQuantity" class="form-control" value="1" min="1" />
+                    </div>
+
+                    <div class="text-end mb-3">
+                        <span class="fw-semibold">Giá: </span>
+                        <span id="modalPrice" class="text-danger fw-bold">0₫</span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                        <button type="submit" class="btn btn-success">Thêm vào giỏ</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector(".add-to-cart-form");
+        if (!form) return;
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            $.post(form.action, data, function (res) {
+                if (res.success) {
+                    alert("🛒 Đã thêm vào giỏ hàng!");
+                    $("#cart-count").text(res.count); // ✅ đúng id
+                    if (typeof refreshCartCount === "function") refreshCartCount();
+                } else {
+                    alert("Có lỗi xảy ra, vui lòng thử lại!");
+                }
+            });
+        });
+    });
+</script>
+@await Html.PartialAsync("~/Views/Order/_CheckoutFoodPartial.cshtml", Model)

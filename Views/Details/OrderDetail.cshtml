@@ -1,0 +1,74 @@
+﻿@model FoodOrderWeb.Models.Order
+
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #" + Model.OrderId;
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<div class="container bg-white shadow-sm p-4 rounded">
+    <h4 class="fw-bold text-success mb-3">Chi tiết đơn hàng #@Model.OrderId</h4>
+    <hr />
+
+    <!-- 🕒 Thông tin chung -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h6 class="text-muted">Ngày đặt:</h6>
+            <p>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+            <h6 class="text-muted">Trạng thái:</h6>
+            <span class="badge bg-warning text-dark">@Model.OrderStatus?.Name</span>
+        </div>
+        <div class="col-md-6">
+            <h6 class="text-muted">Phương thức thanh toán:</h6>
+            <p>@Model.PaymentMethod?.Name</p>
+            <h6 class="text-muted">Địa chỉ giao hàng:</h6>
+            <p>@Model.Address?.Street, @Model.Address?.District, @Model.Address?.City</p>
+        </div>
+    </div>
+
+    <!-- 🛒 Danh sách món -->
+    <h5 class="fw-semibold mb-3">Sản phẩm</h5>
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Tên món</th>
+                <th class="text-center">Số lượng</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-end">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                var name = item.Combo != null
+                ? item.Combo.Name
+                : item.MenuItemSize?.MenuItem?.Name + " (" + item.MenuItemSize?.SizeName + ")";
+                var total = item.UnitPrice * item.Quantity;
+                <tr>
+                    <td>@name</td>
+                    <td class="text-center">@item.Quantity</td>
+                    <td class="text-end">@item.UnitPrice.ToString("N0") ₫</td>
+                    <td class="text-end">@total.ToString("N0") ₫</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 💵 Tổng cộng -->
+    <div class="d-flex justify-content-end mt-4">
+        <div class="text-end">
+            <p>Tạm tính: <strong>@(Model.TotalAmount - Model.ShippingFee).ToString("N0") ₫</strong></p>
+            <p>Phí vận chuyển: <strong>@Model.ShippingFee.ToString("N0") ₫</strong></p>
+            @if (!string.IsNullOrEmpty(Model.VoucherCode))
+            {
+                <p>Voucher: <strong class="text-success">@Model.VoucherCode</strong></p>
+            }
+            <h5 class="fw-bold text-success">Tổng cộng: @Model.TotalAmount.ToString("N0") ₫</h5>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <a asp-action="MyOrders" asp-controller="User" class="btn btn-secondary">
+            ← Quay lại danh sách
+        </a>
+    </div>
+</div>

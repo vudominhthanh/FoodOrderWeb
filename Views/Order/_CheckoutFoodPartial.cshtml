@@ -1,0 +1,37 @@
+﻿@model FoodOrderWeb.Models.MenuItem
+@using FoodOrderWeb.Models.ViewModel
+
+@{
+    var orderModel = new OrderViewModel
+    {
+        CartItems = new List<CartItemViewModel>
+        {
+            new CartItemViewModel
+            {
+                ProductId = Model.MenuItemId,
+                ProductName = Model.Name,
+                UnitPrice = Model.Price,
+                Quantity = 1,
+                ImageUrl = Model.ImageUrl,
+                IsCombo = false
+            }
+        },
+        Subtotal = Model.Price,
+        ShippingFee = 20000
+    };
+}
+
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">💳 Thanh toán món ăn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                @await Html.PartialAsync("~/Views/Order/_CheckoutFormPartial.cshtml", orderModel)
+            </div>
+        </div>
+    </div>
+</div>

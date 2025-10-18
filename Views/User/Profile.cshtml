@@ -1,0 +1,189 @@
+﻿@model FoodOrderWeb.Models.ViewModel.UserViewModel
+
+@{
+    Layout = "~/Views/Shared/_Userlayout.cshtml";
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<style>
+    /* ====== PANEL STYLE ====== */
+    .card.dashboard-card {
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        border: none;
+    }
+
+    .table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+    }
+
+        .table td {
+            vertical-align: middle;
+            border: none !important;
+            padding: 12px;
+        }
+
+        .table form .form-control-sm {
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            transition: all 0.3s ease;
+        }
+
+            .table form .form-control-sm:focus {
+                border-color: #4ade80;
+                box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.25);
+            }
+
+        .table form .btn-success {
+            background: linear-gradient(90deg, #a3e635, #4ade80);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease-in-out;
+        }
+
+            .table form .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(74, 222, 128, 0.4);
+            }
+
+    /* ====== MODAL FIX ====== */
+    .modal-backdrop.show {
+        background: rgba(0, 0, 0, 0.7) !important;
+        z-index: 1050 !important;
+    }
+
+    .modal {
+        z-index: 1060 !important;
+    }
+
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: #fff;
+    }
+
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+
+    /* Button đổi mật khẩu */
+    .btn-warning {
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(250, 204, 21, 0.4);
+        }
+
+    .text-gradient {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+
+<div class="container py-4">
+    <h2 class="mb-4 text-gradient">Thông tin cá nhân</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
+
+    <!-- Card thông tin -->
+    <div class="card dashboard-card mb-4">
+        <div class="card-body">
+            <table class="table align-middle mb-0">
+                <tbody>
+                    <tr>
+                        <td class="fw-bold">Họ và tên</td>
+                        <td>@Model.user?.FullName</td>
+                        <td>
+                            <form asp-action="UpdateField" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="field" value="FullName" />
+                                <input type="text" name="value" class="form-control form-control-sm" placeholder="Nhập tên mới" />
+                                <button type="submit" class="btn btn-sm btn-success">Cập nhật</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Email</td>
+                        <td>@Model.user?.Email</td>
+                        <td>
+                            <form asp-action="UpdateField" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="field" value="Email" />
+                                <input type="email" name="value" class="form-control form-control-sm" placeholder="Email mới" />
+                                <button type="submit" class="btn btn-sm btn-success">Cập nhật</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">Số điện thoại</td>
+                        <td>@Model.user?.Phone</td>
+                        <td>
+                            <form asp-action="UpdateField" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="field" value="Phone" />
+                                <input type="text" name="value" class="form-control form-control-sm" placeholder="SĐT mới" />
+                                <button type="submit" class="btn btn-sm btn-success">Cập nhật</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Button đổi mật khẩu -->
+    <button class="btn btn-warning shadow-sm" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+        <i class="bi bi-shield-lock"></i> Đổi mật khẩu
+    </button>
+</div>
+
+<!-- Modal đổi mật khẩu -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ChangePassword" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu cũ</label>
+                        <input type="password" name="oldPassword" class="form-control" placeholder="Nhập mật khẩu cũ" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" name="newPassword" class="form-control" placeholder="Nhập mật khẩu mới" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nhập lại mật khẩu mới</label>
+                        <input type="password" name="confirmPassword" class="form-control" placeholder="Xác nhận mật khẩu mới" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Thoát
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Xác nhận
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

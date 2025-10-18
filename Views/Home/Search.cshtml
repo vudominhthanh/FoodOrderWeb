@@ -167,6 +167,10 @@
             max-width: calc(20% - 20px);
         }
 
+    .comboback {
+        background: url('/image/backcombo.webp') no-repeat fixed center;
+        background-size: cover;
+    }
 </style>
 
 <div class="container">
@@ -231,7 +235,7 @@
             {
                 <div class="col-md-4 mb-4">
                     <a asp-controller="Details" asp-action="ComboDetails" asp-route-id="@combo.ComboId" class="card-link">
-                        <div class="card h-100">
+                        <div class="comboback card h-100">
                             <div class="card-body">
                                 <h5>@combo.Name</h5>
                                 <p>@combo.Description</p>
@@ -260,7 +264,7 @@
             {
                 <div class="food-item mb-4">
                     <a asp-controller="Details" asp-action="FoodDetails" asp-route-id="@item.MenuItemId" class="card-link">
-                        <div class="card h-100">
+                        <div class="comboback card h-100">
                             <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" />
                             <div class="card-body">
                                 <h5>@item.Name</h5>

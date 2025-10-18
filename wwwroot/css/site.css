@@ -190,3 +190,17 @@ footer {
         color: #0d9488;
         cursor: pointer;
     }
+/*cart*/
+.nav-item.dropdown.d-flex {
+    gap: 10px;
+}
+
+.nav-item.dropdown .fa-cart-shopping {
+    color: lawngreen;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+    .nav-item.dropdown .fa-cart-shopping:hover {
+        transform: scale(1.1);
+        color: #4ade80;
+    }

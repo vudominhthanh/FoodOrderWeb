@@ -1,0 +1,222 @@
+﻿@model FoodOrderWeb.Models.ViewModel.OrderViewModel
+@using Newtonsoft.Json
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    bool isSingleCheckout = false;
+    int productId = 0;
+    bool isCombo = false;
+    int quantity = 1;
+
+    if (Model.CartItems != null && Model.CartItems.Count == 1)
+    {
+        var item = Model.CartItems.First();
+        if (item.ProductId > 0)
+        {
+            isSingleCheckout = true;
+            productId = item.ProductId;
+            isCombo = item.IsCombo;
+            quantity = item.Quantity;
+        }
+    }
+    // Nếu Model có sẵn CartItems (checkout 1 món)
+    var cart = (Model.CartItems != null && Model.CartItems.Any())
+        ? Model.CartItems
+        : new List<FoodOrderWeb.Models.ViewModel.CartItemViewModel>();
+
+    // Nếu Model chưa có thì fallback đọc từ Session (checkout giỏ hàng)
+    if (!cart.Any())
+    {
+        var sessionData = HttpContextAccessor.HttpContext.Session.GetString("Cart");
+        if (!string.IsNullOrEmpty(sessionData))
+        {
+            cart = JsonConvert.DeserializeObject<List<FoodOrderWeb.Models.ViewModel.CartItemViewModel>>(sessionData);
+        }
+    }
+
+    var total = cart.Sum(x => x.UnitPrice * x.Quantity);
+    var userAddresses = Model.AvailableAddresses ?? new List<Address>();
+}
+
+
+<style>
+    /* 🌿 Popup và overlay */
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(3px);
+        display: none;
+        z-index: 99;
+    }
+
+    #addAddressForm {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 100;
+        display: none;
+        width: 420px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+        padding: 25px;
+        animation: popUp 0.25s ease;
+    }
+
+    @@keyframes popUp {
+        from {
+            transform: translate(-50%, -60%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+    }
+
+    .btn-gradient {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        color: #fff;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-gradient:hover {
+            background: linear-gradient(270deg, #16a34a, #65a30d);
+            transform: translateY(-2px);
+        }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnShow = document.getElementById("btnShowAddForm");
+        const overlay = document.getElementById("overlay");
+        const form = document.getElementById("addAddressForm");
+        const cancelBtn = document.getElementById("btnCancelForm");
+
+        function showForm() {
+            overlay.style.display = "block";
+            form.style.display = "block";
+        }
+
+        function hideForm() {
+            overlay.style.display = "none";
+            form.style.display = "none";
+        }
+
+        btnShow?.addEventListener("click", showForm);
+        overlay?.addEventListener("click", hideForm);
+        cancelBtn?.addEventListener("click", hideForm);
+    });
+</script>
+
+<form asp-controller="Order" asp-action="Checkout" method="post" class="p-3 text-dark">
+    <h4 class="mb-3 text-center fw-bold text-success">💳 Thanh toán đơn hàng</h4>
+    <hr class="mb-4" />
+
+    <!-- 🧾 Sản phẩm -->
+    <div class="mb-4">
+        <h5 class="fw-semibold mb-3">🛍️ Sản phẩm</h5>
+        @if (!cart.Any())
+        {
+            <div class="alert alert-warning">Giỏ hàng trống.</div>
+        }
+        else
+        {
+            <div class="border rounded-3 p-3 bg-light">
+                @foreach (var item in cart)
+                {
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <strong>@item.ProductName</strong>
+                            @if (!string.IsNullOrEmpty(item.SizeName))
+                            {
+                                <small class="text-muted">(@item.SizeName)</small>
+                            }
+                            <div class="text-muted">x @item.Quantity</div>
+                        </div>
+                        <div class="fw-semibold text-danger">@((item.UnitPrice * item.Quantity).ToString("N0")) ₫</div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="fw-semibold">Tạm tính:</span>
+                    <span class="fw-bold fs-5 text-success">@total.ToString("N0") ₫</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- 🧍 Người nhận -->
+    <div class="mb-3">
+        <label class="fw-semibold">Họ và tên người nhận</label>
+        <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" required />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="fw-semibold">Số điện thoại</label>
+        <input asp-for="Phone" class="form-control" placeholder="0123 456 789" required />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+
+    <!-- 🎟️ Mã giảm giá -->
+    <div class="mb-3">
+        <label class="fw-semibold">Mã giảm giá</label>
+        <input asp-for="VoucherCode" class="form-control" placeholder="Nhập mã nếu có" />
+    </div>
+
+    <!-- 💰 Phương thức thanh toán -->
+    <div class="mb-3">
+        <label class="fw-semibold">Phương thức thanh toán</label>
+        <select class="form-select" asp-for="PaymentMethod" required>
+            <option value="Cash">Thanh toán khi nhận hàng (COD)</option>
+            <option value="Online">Ví MoMo</option>
+            <option value="Card">Chuyển khoản ngân hàng</option>
+        </select>
+    </div>
+
+    <!-- 📝 Ghi chú -->
+    <div class="mb-3">
+        <label class="fw-semibold">Ghi chú</label>
+        <textarea asp-for="Note" class="form-control" rows="2" placeholder="Ví dụ: giao trong giờ hành chính..."></textarea>
+    </div>
+
+    <!-- 💵 Tổng cộng -->
+    <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-4">
+        <h5 class="mb-0 fw-semibold">Tổng cộng:</h5>
+        <h4 class="text-success fw-bold mb-0">@total.ToString("N0") ₫</h4>
+    </div>
+
+    <!-- ⚙️ Hidden field để controller có dữ liệu khi POST -->
+    <input type="hidden" asp-for="Subtotal" value="@total" />
+    <input type="hidden" asp-for="ShippingFee" value="20000" />
+    <input type="hidden" asp-for="Discount" value="0" />
+    <input type="hidden" asp-for="Total" value="@(total + 20000)" />
+
+    @if (isSingleCheckout)
+    {
+        <input type="hidden" name="IsSingleCheckout" value="true" />
+        <input type="hidden" name="ProductId" value="@productId" />
+        <input type="hidden" name="IsCombo" value="@isCombo.ToString().ToLower()" />
+        <input type="hidden" name="Quantity" value="@quantity" />
+    }
+
+    <!-- Nút -->
+    <div class="text-end mt-4">
+        <button type="submit" class="btn btn-gradient px-4 py-2 fw-semibold shadow">✅ Xác nhận đặt hàng</button>
+        <button type="button" class="btn btn-outline-secondary ms-2" data-bs-dismiss="modal">Hủy</button>
+    </div>
+
+</form>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

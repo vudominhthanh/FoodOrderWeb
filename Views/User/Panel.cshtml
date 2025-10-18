@@ -1,0 +1,98 @@
+﻿@model FoodOrderWeb.Models.ViewModel.UserViewModel
+
+@{
+    Layout = "~/Views/Shared/_Userlayout.cshtml";
+    ViewData["Title"] = "User Panel";
+}
+
+<div class="container mt-4">
+    <div class="grid-container">
+        <div>
+            <a asp-controller="Orders" asp-action="Index" class="text-decoration-none">
+                <div class="card text-center shadow-sm dashboard-card border-0">
+                    <div class="card-body">
+                        <i class="fa-solid fa-receipt fa-2x mb-2 text-gradient"></i>
+                        <h5 class="fw-bold text-dark">Total Orders</h5>
+                        <h3 class="fw-bold text-gradient">@(Model.TotalOrders ?? 0)</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div>
+            <a asp-controller="Addresses" asp-action="Index" class="text-decoration-none">
+                <div class="card text-center shadow-sm dashboard-card border-0">
+                    <div class="card-body">
+                        <i class="fa-solid fa-map-marker-alt fa-2x mb-2 text-gradient"></i>
+                        <h5 class="fw-bold text-dark">Total Addresses</h5>
+                        <h3 class="fw-bold text-gradient">@(Model.TotalAddresses ?? 0)</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div>
+            <a asp-controller="Vouchers" asp-action="Index" class="text-decoration-none">
+                <div class="card text-center shadow-sm dashboard-card border-0">
+                    <div class="card-body">
+                        <i class="fa-solid fa-ticket-alt fa-2x mb-2 text-gradient"></i>
+                        <h5 class="fw-bold text-dark">Total Vouchers</h5>
+                        <h3 class="fw-bold text-gradient">@(Model.TotalVouchers ?? 0)</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div>
+            <a asp-controller="Orders" asp-action="Index" class="text-decoration-none">
+                <div class="card text-center shadow-sm dashboard-card border-0">
+                    <div class="card-body">
+                        <i class="fa-solid fa-dollar-sign fa-2x mb-2 text-gradient"></i>
+                        <h5 class="fw-bold text-dark">Total Spent</h5>
+                        <h3 class="fw-bold text-gradient">$@(Model.TotalSpent ?? 0)</h3>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Gradient and Hover effect -->
+<style>
+    .text-gradient {
+        background: linear-gradient(90deg, #a3e635, #4ade80);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, 200px);
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        padding: 1rem;
+    }
+</style>

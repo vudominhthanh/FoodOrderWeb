@@ -57,13 +57,12 @@ public partial class FoodorderwebContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(sysutcdatetime())");
             entity.Property(e => e.District).HasMaxLength(100);
             entity.Property(e => e.Label).HasMaxLength(100);
-            entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
-            entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
-            entity.Property(e => e.PostalCode).HasMaxLength(20);
             entity.Property(e => e.Street).HasMaxLength(300);
 
-            entity.HasOne(d => d.User).WithOne(p => p.Address)
-                .HasForeignKey<Address>(d => d.UserId)
+            entity.HasOne(d => d.User)
+                .WithMany(p => p.Addresses)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Addresses_Users");
         });
 

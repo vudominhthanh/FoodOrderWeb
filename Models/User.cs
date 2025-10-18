@@ -21,7 +21,7 @@ public partial class User
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual Address? Address { get; set; }
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

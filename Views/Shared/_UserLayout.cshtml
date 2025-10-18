@@ -1,0 +1,138 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@{
+    Layout = null;                      // layout chính của view - null vì đây là layout
+    var title = (string)(ViewData["Title"]);
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@title - FatFod</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9fafb;
+            background-image: url('/image/panelbg.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh; /* chiếm toàn chiều cao màn hình */
+            width: 250px;
+            background-color: #212529;
+            overflow-y: auto; /* nếu quá dài vẫn có thể cuộn riêng */
+            z-index: 1000;
+        }
+
+        /* ✅ Phần nội dung chính dịch sang phải */
+        .main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body >
+    <!-- Sidebar -->
+    <nav class="sidebar p-3 text-light shadow">
+        <div class="mb-4 text-center">
+            <a class="navbar-brand fw-bold fs-4 text-gradient" asp-controller="User" asp-action="Panel">
+                FatFod User <i class="fa-solid fa-user"></i>
+            </a>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-house me-2"></i> Home
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="Cart" asp-action="Index">
+                    <i class="fa-solid fa-cart-shopping me-2"></i> Giỏ hàng
+                </a>
+            </li>
+
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="User" asp-action="Panel">
+                    <i class="fa-solid fa-chart-line me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="User" asp-action="Profile">
+                    <i class="fa-solid fa-id-card me-2"></i> Thông tin cá nhân
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="User" asp-action="MyOrders">
+                    <i class="fa-solid fa-box me-2"></i> Đơn hàng
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link text-light fw-semibold" asp-controller="User" asp-action="AddressPanel">
+                    <i class="fa-solid fa-location-dot me-2"></i> Địa chỉ
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main -->
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom shadow-sm bg-white">
+            <h5 class="mb-0">@title</h5>
+            <div>
+                <span class="me-3 fw-bold">Xin chào, @User.Identity?.Name</span>
+                <form asp-controller="Login" asp-action="Logout" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">Đăng xuất</button>
+                </form>
+            </div>
+        </header>
+
+        <main class="p-4 flex-grow-1">
+            @RenderBody()
+        </main>
+
+        <footer class="bg-dark text-light text-center py-3 mt-auto shadow-sm">
+            <small>© 2025 - FatFod User Panel</small>
+        </footer>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        // Fade-in cards
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".dashboard-card").forEach((card, i) => {
+                setTimeout(() => card.classList.add("fade-in"), i * 120);
+            });
+        });
+
+        // Active link effect
+        document.querySelectorAll(".sidebar .nav-link").forEach(link => {
+            link.addEventListener("click", () => {
+                document.querySelectorAll(".sidebar .nav-link").forEach(l => l.classList.remove("active"));
+                link.classList.add("active");
+            });
+        });
+    </script>
+</body>
+</html>
